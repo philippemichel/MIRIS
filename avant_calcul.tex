@@ -1,0 +1,132 @@
+\documentclass[]{tufte-handout}
+
+% ams
+\usepackage{amssymb,amsmath}
+
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \makeatletter
+  \@ifpackageloaded{fontspec}{}{\usepackage{fontspec}}
+  \makeatother
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+  \makeatletter
+  \@ifpackageloaded{soul}{
+     \renewcommand\allcapsspacing[1]{{\addfontfeature{LetterSpace=15}#1}}
+     \renewcommand\smallcapsspacing[1]{{\addfontfeature{LetterSpace=10}#1}}
+   }{}
+  \makeatother
+
+\fi
+
+% graphix
+\usepackage{graphicx}
+\setkeys{Gin}{width=\linewidth,totalheight=\textheight,keepaspectratio}
+
+% booktabs
+\usepackage{booktabs}
+
+% url
+\usepackage{url}
+
+% hyperref
+\usepackage{hyperref}
+
+% units.
+\usepackage{units}
+
+
+\setcounter{secnumdepth}{-1}
+
+% citations
+
+% pandoc syntax highlighting
+
+% longtable
+
+% multiplecol
+\usepackage{multicol}
+
+% strikeout
+\usepackage[normalem]{ulem}
+
+% morefloats
+\usepackage{morefloats}
+
+
+% tightlist macro required by pandoc >= 1.14
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% title / author / date
+\title{MIRIS - Calculs préparatoires}
+\author{Philippe MICHEL}
+\date{}
+
+
+\begin{document}
+
+\maketitle
+
+
+
+
+\hypertarget{prediction-des-valeurs}{%
+\section{Prédiction des valeurs}\label{prediction-des-valeurs}}
+
+\hypertarget{frequence-des-mesures}{%
+\section{Fréquence des mesures}\label{frequence-des-mesures}}
+
+\hypertarget{protides}{%
+\subsection{Protides}\label{protides}}
+
+La variation prédite est de -0.009 g/jour soit largement inférieure au
+seuil de tolérance même sur trois ou cinq jours. À noter, en supprimant
+quelques valeurs extrèmes (protides très élevées autour de 5 g/L) on
+améliore nettement la courbe de corrélation \& la validité des calculs.
+Est-ce que ça a un sens clinique de considérer ces valeurs comme
+anormales ?
+
+\hypertarget{lipides}{%
+\subsection{Lipides}\label{lipides}}
+
+Pour les lipides la variation prévue est de 0.002 g/jour. De même, cette
+variation est trop basse sur quelques jours pour entraîner des erreurs
+significatives. Deux mesures par semaine semble être un bon compromis.
+
+\hypertarget{difference-entre-apports-theoriques-et-apports-reels}{%
+\section{Différence entre apports théoriques et apports
+réels}\label{difference-entre-apports-theoriques-et-apports-reels}}
+
+Sur l'échantillon de mesures on a pour les protides une moyenne de 1.593
+± 0.57 g/L. en comptant la moyenne du second échantillon à + 20 \% \&
+avec le même écart-type, un risque alpha à 5 \% \& une puissance à 80
+\%, chaque groupe doit avoir une taille minimale de 50 échantillons.
+
+Le même calcul pour les lipides donne 139 échantillons poar groupe
+(beaucoup plus grande dispersion des mesures).
+
+En comptant les erreurs, oublis etc. on peut estimer des deux groupes de
+150 à 200 échantillons sont acceptables \& raisonnables.
+
+De plus en regardant par patient, on voit des différences importantes
+de'évolution des taux de protides au fil du temps.
+
+\includegraphics{avant_calcul_files/figure-latex/patients-1}
+
+\hypertarget{annexe}{%
+\section{Annexe}\label{annexe}}
+
+Une comparaison rapide des laits crus \& pasteurisés montre des
+différences évidentes.
+
+\includegraphics{avant_calcul_files/figure-latex/graph prot-1}
+
+\includegraphics{avant_calcul_files/figure-latex/graphlip-1}
+
+
+
+\end{document}

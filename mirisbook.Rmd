@@ -30,8 +30,8 @@ editor_options:
 ---
 
 ```{r setup, include= FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = TRUE)
-#knitr::opts_chunk$set(echo = TRUE, warning = TRUE, message = TRUE)
+# knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = TRUE, message = TRUE)
 rm(list = ls())
 ```
 
@@ -105,6 +105,20 @@ if (orp < 0.001){orp = " p < 0,001"}
     else { orp = paste0("p = ", orp)}
 return(paste0("Odd ratio = ",orm," [",orb," ; ",orh,"] (",orp,")"))
 }
+
+# Test d'égalité des variances
+ttestc <- function(varx){
+aa <- tt %>% 
+  group_by(nature.lait) %>% 
+  summarise(vvx = var({{varx}},na.rm =TRUE))
+vareq <- round(aa[[1,2]]/aa[[2,2]],3)
+if (vareq < 0.5 | vareq > 2){
+  rrv <- "Faux"
+}else {
+    rrv <-  "OK"
+    }
+}
+
 ```
 
 
@@ -126,17 +140,23 @@ ttn <- tt %>%
   filter(tt$nom %in% zz$nom)
 ```
 # Évolution des taux
-Pour chacun des nutriments on regarde l'évolution du taux dans le lait selon l'âge, d'abord pour toutes les patientes puis uniquement, cas par cas, les patients ayant eu plus de vingt prélèvements (uniquement pour améliorer la présentation).
+Pour chacun des nutriments on regarde l'évolution du taux dans le lait selon l'âge, d'abord pour toutes les patientes puis uniquement, cas par cas, les patients ayant eu plus de vingt prélèvements (Limite choisie uniquement pour améliorer la présentation). Enfin on compare les laits crus & pasteurisés.
 
 ## Glucides
 
 ```{r corglu}
 orr <- orgg(tt$glucides)
+varg <- ttestc(glucides)
+zz <- t.test(tt$glucides~tt$nature.lait, var.equal =TRUE)
+varp <- zz$p.value
+if (varp < 0.001){
+  varp = "p < 0,001"
+} else
+  varp = round(varp,3)
 ```
 
-Corrélation linéaire significative : 
+Corrélation linéaire significative : `r orr` `r varg` 
 
-`r orr`
 
 ```{r glucides}
 laitgg(tt, glucides, "Glucides", "mmol/L")
@@ -144,11 +164,26 @@ laitgg(tt, glucides, "Glucides", "mmol/L")
 graphpat(ttn,glucides,"Glucides")
 ```
 
+### Lait cru vs pasteurisé
+
+
+Le test d'égalité des variances  confirme que l'égalité des variances est `r varg`.
+
+La comparaison enre les deux types de lait montre `r varp`. 
+
+
 
 ## Protides
 
 ```{r corprot}
 orr <- orgg(tt$protides)
+varg <- ttestc(protides)
+zz <- t.test(tt$protides~tt$nature.lait, var.equal =TRUE)
+varp <- zz$p.value
+if (varp < 0.001){
+  varp = "p < 0,001"
+} else
+  varp = round(varp,3)
 ```
 
 Corrélation linéaire significative : 
@@ -160,12 +195,25 @@ laitgg(tt, protides, "Protides", "g/L")
 
 graphpat(ttn,protides,"Protides")
 ```
+### Lait cru vs pasteurisé
+
+
+Le test d'égalité des variances  confirme que l'égalité des variances est `r varg`.
+
+La comparaison enre les deux types de lait montre `r varp`. 
 
 ## Lipides
 
 
 ```{r corlip}
 orr <- orgg(tt$lipides)
+varg <- ttestc(lipides)
+zz <- t.test(tt$lipides~tt$nature.lait, var.equal =TRUE)
+varp <- zz$p.value
+if (varp < 0.001){
+  varp = "p < 0,001"
+} else
+  varp = round(varp,3)
 ```
 
 Corrélation linéaire non significative : 
@@ -177,6 +225,12 @@ laitgg(tt, lipides, "Lipides", "g/L")
 
 graphpat(ttn,lipides,"Lipides")
 ```
+### Lait cru vs pasteurisé
+
+
+Le test d'égalité des variances  confirme que l'égalité des variances est `r varg`.
+
+La comparaison enre les deux types de lait montre `r varp`. 
 
 # Conclusion
 

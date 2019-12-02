@@ -2,10 +2,18 @@
 title: "MIRIS"
 subtitle: "Travaux préparatoires"
 author: "Philippe MICHEL"
+date: "`r Sys.Date()`"
 output:
+  prettydoc::html_pretty:
+    theme: caiman
+    highlight: github
+    toc: yes
+  # tufte::tufte_html: default
   html_document:
     df_print: paged
     toc: yes
+    toc_float: true
+    theme: lumen
   word_document:
     toc: yes
   html_notebook:
@@ -22,15 +30,16 @@ editor_options:
 ---
 
 ```{r setup, include= FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = TRUE)
 #knitr::opts_chunk$set(echo = TRUE, warning = TRUE, message = TRUE)
+rm(list = ls())
 ```
 
 
 ```{r info}
 rm(list=ls())
+library("prettydoc")
 library("thesisph")
-library("tidyverse")
 library("missMDA")
 library("epiDisplay")
 library("factoextra")
@@ -38,90 +47,137 @@ library("lubridate")
 library("knitr")
 library("finalfit")
 library("viridis")
+library("stringr")
+library("tidyverse")
 # sessionInfo()
 #
 ```
 
+```{r def, echo = FALSE}
+# Graph points avce diffrents laits pour un nutriment
+laitgg <- function(dfx, varx, titre ,unit)
+dfx %>% 
+  ggplot() +
+  aes(x = age, y = {{varx}}, color = nature.lait) +
+  geom_point() +
+  geom_smooth() +
+  labs(title = titre,
+       x = "Âge (j)",
+       y = unit
+  ) + 
+  theme_light() + 
+  scale_color_viridis(discrete = TRUE, option = "magma") +
+  theme(plot.title = element_text(size=16, face="bold"),
+        axis.title.x = element_text(size=12, face="bold"),
+        axis.title.y = element_text(size=12, face="bold"),
+        axis.text.x = element_text(size=12, face="bold"),
+        axis.text.y = element_text(size=12, face="bold"),
+        legend.position = "right") 
+
+# Graph de l'évoltion d'un nutriment cas par cas
+graphpat <- function(dfx,varx, titre){
+  dfx %>% 
+  ggplot() +
+  aes(x = age, y = {{varx}}) +
+  geom_line() +
+  facet_grid(nom~.) +
+  labs(title = titre,
+       x = "Âge (j)",
+       y = ""
+  ) + 
+  theme_light() + 
+  theme(plot.title = element_text(size=16, face="bold"),
+        axis.title.x = element_text(size=12, face="bold"),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size=12, face="bold"),
+        axis.text.y = element_blank(),
+        legend.position = "none") 
+}
+
+# Odd-ratio de la corrélation
+orgg <- function(varx){
+llc <- cor.test(tt$age,varx)
+orm <- signif(exp(llc$estimate),3)
+orb <- signif(exp(llc$conf.int[[1]]),3)
+orh <- signif(exp(llc$conf.int[[2]]),3)
+orp <- signif(llc$p.value,2)
+if (orp < 0.001){orp = " p < 0,001"}
+    else { orp = paste0("p = ", orp)}
+return(paste0("Odd ratio = ",orm," [",orb," ; ",orh,"] (",orp,")"))
+}
+```
+
 
 ```{r import}
-rm(list = ls())
 tt <- read.csv("data/prealable.csv", header= TRUE, dec = ",")
+# Anonymisation
+tt$nom <- str_trim(tt$nom)
+tt <- tt %>% 
+  mutate(nom = paste0(str_sub(nom,1,2),str_sub(nom,-3)))
 ```
 
 ```{r tri}
-# Tri des patiente aynt eu plus de 2 prélèvements
+# Tri des patiente aynt eu plus de 20 prélèvements
 zz <- tt %>% 
   group_by(nom) %>% 
   summarise(nb = n()) %>% 
-  filter(nb > 3)
+  filter(nb > 20)
 ttn <- tt %>% 
   filter(tt$nom %in% zz$nom)
 ```
+# Évolution des taux
+Pour chacun des nutriments on regarde l'évolution du taux dans le lait selon l'âge, d'abord pour toutes les patientes puis uniquement, cas par cas, les patients ayant eu plus de vingt prélèvements (uniquement pour améliorer la présentation).
 
+## Glucides
 
-# Glucides
+```{r corglu}
+orr <- orgg(tt$glucides)
+```
+
+Corrélation linéaire significative : 
+
+`r orr`
 
 ```{r glucides}
-tt %>% 
-  ggplot() +
-  aes(x = age, y = glucides, color = nature.lait) +
-  geom_point() +
-  geom_smooth() +
-  labs(title = "Glucides",
-       x = "Âge (j)",
-       y = "mmol/L"
-  ) + 
-  theme_light() + 
-  scale_color_viridis(discrete = TRUE, option = "magma") +
-  theme(plot.title = element_text(size=16, face="bold"),
-        axis.title.x = element_text(size=12, face="bold"),
-        axis.title.y = element_text(size=12, face="bold"),
-        axis.text.x = element_text(size=12, face="bold"),
-        axis.text.y = element_text(size=12, face="bold"),
-        legend.position = "right") 
+laitgg(tt, glucides, "Glucides", "mmol/L")
+
+graphpat(ttn,glucides,"Glucides")
 ```
 
 
-# Protides
+## Protides
+
+```{r corprot}
+orr <- orgg(tt$protides)
+```
+
+Corrélation linéaire significative : 
+
+`r orr`
 
 ```{r Protides}
-tt %>% 
-  ggplot() +
-  aes(x = age, y = protides, color = nature.lait) +
-  geom_point() +
-  geom_smooth() +
-  labs(title = "Protides",
-       x = "Âge (j)",
-       y = "g/L"
-  ) + 
-  theme_light() + 
-  scale_color_viridis(discrete = TRUE, option = "magma") +
-  theme(plot.title = element_text(size=16, face="bold"),
-        axis.title.x = element_text(size=12, face="bold"),
-        axis.title.y = element_text(size=12, face="bold"),
-        axis.text.x = element_text(size=12, face="bold"),
-        axis.text.y = element_text(size=12, face="bold"),
-        legend.position = "right") 
+laitgg(tt, protides, "Protides", "g/L")
+
+graphpat(ttn,protides,"Protides")
 ```
 
-# Lipides
+## Lipides
+
+
+```{r corlip}
+orr <- orgg(tt$lipides)
+```
+
+Corrélation linéaire non significative : 
+
+`r orr`
 
 ```{r lipides}
-tt %>% 
-  ggplot() +
-  aes(x = age, y = lipides, color = nature.lait) +
-  geom_point() +
-  geom_smooth() +
-  labs(title = "Lipides",
-       x = "Âge (j)",
-       y = "g/L"
-  ) + 
-  theme_light() + 
-  scale_color_viridis(discrete = TRUE, option = "magma") +
-  theme(plot.title = element_text(size=16, face="bold"),
-        axis.title.x = element_text(size=12, face="bold"),
-        axis.title.y = element_text(size=12, face="bold"),
-        axis.text.x = element_text(size=12, face="bold"),
-        axis.text.y = element_text(size=12, face="bold"),
-        legend.position = "right") 
+laitgg(tt, lipides, "Lipides", "g/L")
+
+graphpat(ttn,lipides,"Lipides")
 ```
+
+# Conclusion
+
+Les variations sont très faibles pour une patiente donnée avec de fortes variations de jour en jour d'aspect aléatoire. Toute modélisation sera à interpréter avec prudence.
